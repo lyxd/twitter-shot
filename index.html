@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<style>
+	body {
+		background: rgb(11, 148, 102);
+	}
+
+	.change-track {
+		position: fixed;
+		height: 30px;
+		top: 30px;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		text-align: center;
+	}
+
+	.tweets {
+		padding: 1px;
+		margin-top: 80px;
+	}
+
+	.tweet {
+		margin: 25px auto;
+		padding: 15px;
+		background: rgba(0, 120, 224, 0.57);
+		width: 50%;
+		position: relative;
+	}
+
+	.text {
+		background: white;
+		padding: 10px;
+		font-size: 20px;
+		font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+	}
+
+	.name {
+		position: absolute;
+		height: 15px;
+		background: white;
+		top: 0px;
+		padding: 0 10px;
+	}
+
+	.avatar {
+		position: absolute;
+		height: 48px;
+		width: 48px;
+		top: 0;
+		left: -33px;
+	}
+
+</style>
+<body>
+
+	<div class="change-track">
+		<input class="track-text" type="text"/>
+		<button class="track-button">Set new track</button>
+	</div>
+	<div class="tweets">
+	</div>
+	<script src="https://cdn.socket.io/socket.io-1.3.4.js"></script>
+	<script>
+
+		var host = "http://"+window.location.hostname+ ":8080";
+		console.log(host);
+		var socket = io(host);
+		var tweets = document.getElementsByClassName('tweets')[0];
+
+		socket.on('tweet', function(data) {
+			var tweet = document.createElement('div');
+			tweet.className = 'tweet';
+			tweet.innerHTML = "<div class=\"text\">" + data.text +  "</div>" +
+			"<div class=\"name\">" + data.name +  "</div>" +
+			"<div class=\"avatar\">" + "<img src=\"" + data.avatar + "\">" + "</div>";
+
+			tweets.insertBefore(tweet, tweets.firstChild);
+		});
+
+		socket.on('tweetError', function(data) {
+			console.log(data);
+		});
+
+		socket.emit('startTweets');
+
+
+		var trackButton = document.getElementsByClassName('track-button')[0];
+
+		trackButton.addEventListener('click', function() {
+			var trackText = document.getElementsByClassName('track-text')[0];
+			console.log(trackText.value);
+			socket.emit('setAnotherTrack', {track: trackText.value});
+		})
+
+	</script>
+</body>
+</html>
